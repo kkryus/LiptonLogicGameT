@@ -36,8 +36,6 @@ window.onload=function(){
 		y:300 + length,
 		fill:"#663300",
 		points:[{x:0,y:0},{x:0,y:-length},{x:-1/2*length,y:-1/2*length},{x:-length,y:0}],
-		B:{x:-1/2*length,y:-1/2*length},
-		positionA:{x:3*length+300, y:300 + length},
 		isDragging:false,
 	}
 	polygons.push(triangle);
@@ -47,8 +45,6 @@ window.onload=function(){
 		y:300+4*length,
 		fill:"#0000cc",
 		points:[{x:0,y:0},{x:0,y:-3*length},{x:-length,y:-2*length},{x:-length,y:0}],	
-		B:{x:-length,y:-2*length},
-		positionA:{x:300+2*length, y:300+4*length},
 		isDragging:false
 	}
 	polygons.push(bluePolygon);
@@ -58,8 +54,6 @@ window.onload=function(){
 		y:300,
 		fill:"#ff0000",
 		points:[{x:0,y:0},{x:3*length-sq2*length,y:0},{x:2*length - sq2*length,y:length},{x:0,y:length}],
-		B:{x:2*length - sq2*length,y:length},
-		positionA:{x:300, y:300},
 		isDragging:false
 	}
 	polygons.push(redPolygon);
@@ -69,8 +63,6 @@ window.onload=function(){
 		y:300+length,
 		fill:"#00ff00",
 		points:[{x:0,y:0},{x:length,y:-length},{x:sq2*length + length,y:-length},{x:sq2*length -length,y:length}, {x:sq2*length-length,y:0}],
-		B:{x:sq2*length + length,y:-length},
-		positionA:{x:300+2*length - sq2*length, y:300+length},
 		isDragging:false
 	}
 	polygons.push(greenPolygon);
@@ -124,9 +116,9 @@ window.onload=function(){
         }		
     }
 
-
     // handle mousedown events
     function myDown(e){
+		
 		startTime = new Date();
         // tell the browser we're handling this mouse event
         e.preventDefault();
@@ -135,7 +127,6 @@ window.onload=function(){
 		
 		var hex = getColorFromPoint();
 		var item = polygons.filter(polygon => ( polygon.fill.toUpperCase() == hex.toUpperCase() && hex.toUpperCase()!= "#808080"))[0];
-		
 		dragok = true;
 		item.isDragging = true;
 		
@@ -172,14 +163,26 @@ window.onload=function(){
 	{
 		setCurrentMousePosition(e);
 		if(e.which == 3)
-		{	
+		{				
 			var hex = getColorFromPoint();
 			var item = polygons.filter(rect => ( rect.fill.toUpperCase() == hex.toUpperCase() && hex.toUpperCase()!= "#808080"))[0];
-			var side = ((item.positionA.x*item.B.x - item.positionA.x) * (my - item.positionA.y) - (item.positionA.y*item.B.y - item.positionA.y) * (mx - item.positionA.x)) >0;
-			if(side)
-				angle = (2.5) * Math.PI / 180;
+			var side;
+			if (item.fill.toUpperCase() == "#00ff00")
+			{
+				side = ((item.points[item.points.length-1].x*item.points[2].x - item.points[item.points.length-1].x) * (my - item.points[item.points.length-1].y) - (item.points[item.points.length-1].y*item.points[2].y - item.points[item.points.length-1].y) * (mx - item.points[item.points.length-1].x)) >0;
+			}
 			else
+			{
+				side = ((item.x*item.points[2].x - item.x) * (my - item.y) - (item.y*item.points[2].y - item.y) * (mx - item.x)) >0;
+			}
+			if(side)
+			{
+				angle = (2.5) * Math.PI / 180;
+			}
+			else
+			{
 				angle = (-2.5) * Math.PI / 180;
+			}
 			
 			for(j = 0;j<item.points.length;j++)
 			{							
@@ -195,8 +198,6 @@ window.onload=function(){
 				item.points[j].y = newy;
 				draw();
 			}	
-			item.B.x = item.points[2].x;
-			item.B.y = item.points[2].y;
 			dragok = false;
 			item.isDragging = false;				
 		}
@@ -222,8 +223,6 @@ window.onload=function(){
 				polygons.push(r);
                 r.x+=dx;
                 r.y+=dy;
-				r.positionA.x+=dx;
-				r.positionA.y+=dy;
               }
           }	  
           // redraw the scene with the new rect positions
@@ -232,7 +231,6 @@ window.onload=function(){
           // reset the starting mouse position for the next mousemove
           startX=mx;
           startY=my;
-
         }
     }
 	$('body').on('contextmenu', '#canvas', function(e){ return false; });
