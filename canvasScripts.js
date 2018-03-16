@@ -32,8 +32,8 @@ window.onload=function(){
 	polygons.push(T);
 	
 	var triangle={
-		x:3*length+300,
-		y:300 + length,
+		x:100,
+		y:100,
 		fill:"#663300",
 		points:[{x:0,y:0},{x:0,y:-length},{x:-1/2*length,y:-1/2*length},{x:-length,y:0}],
 		isDragging:false,
@@ -41,8 +41,8 @@ window.onload=function(){
 	polygons.push(triangle);
 	
 	var bluePolygon = {
-		x:300+2*length,
-		y:300+4*length,
+		x:300,
+		y:300,
 		fill:"#0000cc",
 		points:[{x:0,y:0},{x:0,y:-3*length},{x:-length,y:-2*length},{x:-length,y:0}],	
 		isDragging:false
@@ -50,8 +50,10 @@ window.onload=function(){
 	polygons.push(bluePolygon);
 	
 	var redPolygon = {
-		x:300,
-		y:300,
+		//x:300,
+		//y:300,
+		x:350,
+		y:350,
 		fill:"#ff0000",
 		points:[{x:0,y:0},{x:3*length-sq2*length,y:0},{x:2*length - sq2*length,y:length},{x:0,y:length}],
 		isDragging:false
@@ -59,8 +61,8 @@ window.onload=function(){
 	polygons.push(redPolygon);
 	
 	var greenPolygon = {
-		x:300+2*length - sq2*length,
-		y:300+length,
+		x:450,
+		y:450,
 		fill:"#00ff00",
 		points:[{x:0,y:0},{x:length,y:-length},{x:sq2*length + length,y:-length},{x:sq2*length -length,y:length}, {x:sq2*length-length,y:0}],
 		isDragging:false
@@ -71,7 +73,8 @@ window.onload=function(){
     canvas.onmousedown = myDown;
     canvas.onmouseup = myUp;
     canvas.onmousemove = myMove;
-
+	
+	makeRotation(greenPolygon, (18*2.5) * Math.PI / 180);
     // call to draw the scene
     draw();
 
@@ -169,11 +172,11 @@ window.onload=function(){
 			var side;
 			if (item.fill.toUpperCase() == "#00ff00")
 			{
-				side = ((item.points[item.points.length-1].x*item.points[2].x - item.points[item.points.length-1].x) * (my - item.points[item.points.length-1].y) - (item.points[item.points.length-1].y*item.points[2].y - item.points[item.points.length-1].y) * (mx - item.points[item.points.length-1].x)) >0;
+				side = ((item.points[item.points.length-1].x-item.points[2].x - item.points[item.points.length-1].x) * (my - item.points[item.points.length-1].y) - (item.points[item.points.length-1].y-item.points[2].y - item.points[item.points.length-1].y) * (mx - item.points[item.points.length-1].x)) <=0;
 			}
 			else
-			{
-				side = ((item.x*item.points[2].x - item.x) * (my - item.y) - (item.y*item.points[2].y - item.y) * (mx - item.x)) >0;
+			{				
+				side = ((item.x-item.points[2].x - item.x) * (my - item.y) - (item.y-item.points[2].y - item.y) * (mx - item.x)) <=0;
 			}
 			if(side)
 			{
@@ -183,21 +186,9 @@ window.onload=function(){
 			{
 				angle = (-2.5) * Math.PI / 180;
 			}
-			
-			for(j = 0;j<item.points.length;j++)
-			{							
-				var x2 = item.points[j].x;
-				var y2 = item.points[j].y;
-				var cos = Math.cos(angle);
-				var sin = Math.sin(angle);
-
-				var newx = x2*cos - y2*sin; 
-				var newy = x2*sin + y2*cos;
-							
-				item.points[j].x = newx;
-				item.points[j].y = newy;
-				draw();
-			}	
+									
+			makeRotation(item, angle);			
+			draw();			
 			dragok = false;
 			item.isDragging = false;				
 		}
@@ -233,6 +224,25 @@ window.onload=function(){
           startY=my;
         }
     }
+	
+	
+	function makeRotation(item, angle)
+	{
+		for(i = 0;i<item.points.length;i++)
+		{	
+			var x2 = item.points[i].x;
+			var y2 = item.points[i].y;
+			var cos = Math.cos(angle);
+			var sin = Math.sin(angle);
+
+			var newx = x2*cos - y2*sin; 
+			var newy = x2*sin + y2*cos;
+								
+			item.points[i].x = newx;
+			item.points[i].y = newy;
+		}
+	}
+	
 	$('body').on('contextmenu', '#canvas', function(e){ return false; });
 
 	function mirrorPolygon(polygon)
